@@ -28,7 +28,15 @@ int main() {
 
     std::cout << KruskalResult.first << " " << PrimResult.first << std::endl;
     
-    
+    std::cout << "Kruskal\n";
+
+    for (int i = 0; i < graph.Size() - 1; i++){
+        std::cout << KruskalResult.second[i].first << "  " << KruskalResult.second[i].second << "\n";
+    }
+    std::cout << "Prim\n";
+    for (int i = 0; i < graph.Size() - 1; i++){
+        std::cout << PrimResult.second[i].first << "  " << PrimResult.second[i].second << "\n";
+    }
 
     return 0;
 }
