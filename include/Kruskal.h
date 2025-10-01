@@ -6,6 +6,6 @@
 #include <algorithm>
 
 
-std::pair<weight, std::vector<std::pair<int, int>>> KruskalMst(const Graph graph);
+std::pair<weight, std::vector<std::pair<int, int>>> KruskalMst(const Graph& graph);
 
 #endif

@@ -1,7 +1,7 @@
 #include "../include/Prim.h"
 
 
-std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph& graph, int start_vertex = 0){
+std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph& graph, int start_vertex) {
     int n = graph.Size();
     weight total_weight;
     std::vector<int> result(n,-1);
@@ -37,7 +37,7 @@ std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph& graph, 
         }      
     }
     
-    std::vector<std::pair<int, int>> mst_edges(n-1);
+    std::vector<std::pair<int, int>> mst_edges;
     for (int i = 0; i < n; i++){
         if (result[i] != -1) {
             mst_edges.emplace_back(result[i], i);

@@ -11,6 +11,7 @@ Graph::Graph(int n) : _num_of_vertex(n){
 void Graph::AddEdge(int v, int u, weight w){
     _edges.push_back({v, u, w});
     _adjacency_list[v].push_back({u,w});
+    _adjacency_list[u].push_back({v,w});
 }
 
 const int Graph::Size() const{
@@ -31,7 +32,7 @@ const std::vector<Edge> Graph::GetEdges() const{
 }
 
 
-std::istream& operator>>(std::istream& in, Graph graph){
+std::istream& operator>>(std::istream& in, Graph& graph){
     int n, m;
     in >> n >> m;
     graph.Resize(n);

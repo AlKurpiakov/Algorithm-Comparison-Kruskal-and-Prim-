@@ -14,9 +14,9 @@ private:
 
 public:
     DSU(int size);
-    int Find(int x) const;
+    int Find(int x);
     void UnionSet(int x, int y);
-    const bool IsConnected(int x, int y) const;
+    bool IsConnected(int x, int y);
 };
 
 

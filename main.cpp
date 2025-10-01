@@ -22,8 +22,13 @@ int main() {
     KruskalResult = KruskalMst(graph);
     
     auto Kruskal_end = std::chrono::high_resolution_clock::now();
-    auto Kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(Prim_end - Prim_start);
+    auto Kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(Kruskal_end - Kruskal_start);
 
+    std::cout << Kruskal_duration.count() << " " << Prim_duration.count() << std::endl;
+
+    std::cout << KruskalResult.first << " " << PrimResult.first << std::endl;
+    
+    
 
     return 0;
 }

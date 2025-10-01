@@ -10,6 +10,6 @@
 #include <limits.h>
 
 
-std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph graph, int start_vertex = 0);
+std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph& graph, int start_vertex = 0);
 
 #endif
