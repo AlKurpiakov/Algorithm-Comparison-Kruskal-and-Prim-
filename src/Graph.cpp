@@ -31,6 +31,16 @@ const std::vector<Edge> Graph::GetEdges() const{
     return _edges;
 }
 
+const bool Graph::IsConnected(int x, int y) const {
+    for (int i = 0; i < _adjacency_list[x].size(); i++){
+        if (_adjacency_list[x][i].first == y) {
+            return true;
+        }
+    }
+
+    return false;
+}
+    
 
 std::istream& operator>>(std::istream& in, Graph& graph){
     int n, m;

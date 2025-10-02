@@ -9,7 +9,7 @@
 #include <vector>
 
 using weight = long long;
-const long long INF = 100;
+const long long INF = LONG_LONG_MAX;
 
 
 struct Edge{
@@ -35,6 +35,7 @@ public:
     const std::vector<Edge> GetEdges() const;
     void Resize(int n);
     void AddEdge(int v, int u, weight w);
+    const bool IsConnected(int x, int y) const;
     
     friend std::istream& operator>>(std::istream& in, Graph& graph);  
 };
