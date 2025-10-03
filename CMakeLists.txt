@@ -10,9 +10,11 @@ set(SOURCES
     src/Graph.cpp
     src/Kruskal.cpp
     src/Prim.cpp
+    testkit/testkit.cpp
 )
 
 set(HEADERS
+    testkit/testkit.h
     include/DSU.h
     include/Graph.h
     include/Kruskal.h
@@ -22,6 +24,5 @@ set(HEADERS
 add_executable(AlgorithmComparison main.cpp ${SOURCES} ${HEADERS})
 
 target_include_directories(AlgorithmComparison PRIVATE ${CMAKE_SOURCE_DIR}/include)
-
 
 target_compile_features(AlgorithmComparison PRIVATE cxx_std_17)

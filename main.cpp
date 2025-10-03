@@ -1,41 +1,4 @@
-#include "include/Prim.h"
-#include "include/Kruskal.h"
-#include "include/Graph.h"
-#include <chrono>
-#include <random>
-
-inline Graph GenerateConnectedGraph(int n, int m){
-    Graph graph(n);
-    std::vector<int> vertex;
-    std::random_device rd;
-    std::mt19937 g(rd());
-
-    std::iota(vertex.begin(), vertex.end(), 0);
-    std::shuffle(vertex.begin(), vertex.end(), g);
-    
-    int v;
-    int u;
-    for (int i = 0; i < n - 1; i++){
-        std::uniform_int_distribution<> dis(0, n-1);
-        v = dis(g);
-        graph.AddEdge(vertex[i], vertex[v], rand()%1000);
-    }
-
-    int k = n - 1;
-    while (k < m){
-        std::uniform_int_distribution<> dis(0, n-1);
-        v = dis(g);
-        u = dis(g);
-        if (v != u && !graph.IsConnected(v, u)) {
-            graph.AddEdge(vertex[v], vertex[u], rand()%1000);
-            k++;
-        }
-    }
-    
-    return graph;
-}
-
-
+#include "../testkit/testkit.h"
 
 int main() {
     srand(time(NULL));
