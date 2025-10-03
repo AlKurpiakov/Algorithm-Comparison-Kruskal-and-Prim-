@@ -23,7 +23,7 @@ inline Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight){
         v = dis(g);
         u = dis(g);
         if (v != u && !graph.IsConnected(v, u)) {
-            graph.AddEdge(vertex[v], vertex[u], rand()%1000);
+            graph.AddEdge(vertex[v], vertex[u], g()%max_weight);
             k++;
         }
     }
@@ -59,6 +59,13 @@ std::vector<Graph>& TestKit::GetTestSet() {
 
 void TestKit::RunTests(const std::string& name_of_test) {
 
+    std::string Prim_output_file = "../resilts/" + name_of_test + "Prim";
+    std::string Kruskal_output_file = "../resilts/" + name_of_test + "Kruskal";
+
+    std::ofstream Prim_file(Prim_output_file);
+    std::ofstream Kruskal_file(Kruskal_output_file);
+    
+
     std::pair<weight, std::vector<std::pair<int, int>>> PrimResult;
     std::pair<weight, std::vector<std::pair<int, int>>> KruskalResult; 
 
@@ -68,14 +75,18 @@ void TestKit::RunTests(const std::string& name_of_test) {
         PrimResult = PrimMst(_test_set[i]);
 
         auto Prim_end = std::chrono::high_resolution_clock::now();
-        auto Prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(Prim_end - Prim_start);
+        std::chrono::__enable_if_is_duration<std::chrono::milliseconds> Prim_duration = std::chrono::duration_cast<std::chrono::milliseconds>(Prim_end - Prim_start);
 
         auto Kruskal_start = std::chrono::high_resolution_clock::now();
     
         KruskalResult = KruskalMst(_test_set[i]);
         
         auto Kruskal_end = std::chrono::high_resolution_clock::now();
-        auto Kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(Kruskal_end - Kruskal_start);
+        std::chrono::__enable_if_is_duration<std::chrono::milliseconds> Kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(Kruskal_end - Kruskal_start);
+
+        Kruskal_file << Kruskal_duration.count() << "\n";
+        Prim_file << Prim_duration.count() << "\n";
+
     }
 
 
@@ -96,19 +107,19 @@ inline int TestKit::CalcEgesCount(int num_of_edges){
     switch (_type)
     {
     case 0:
-        return num_of_edges * num_of_edges ;
-        break;
-
-    case 1:
         return num_of_edges * num_of_edges / 10;
         break;
     
-    case 2:
-        return 1000 * num_of_edges;
+    case 1:
+        return num_of_edges * num_of_edges ;
         break;
-
-    case 3:
+    
+    case 2:
         return 100 * num_of_edges;
+        break;
+    
+    case 3:
+        return 1000 * num_of_edges;
         break;    
         
     default:
@@ -139,3 +150,32 @@ void EdgesTestKit::GenerateTests() {
         _test_set.push_back(this->GenerateConnectedGraph(_power_of_vertex_set, i, _max_weight));
     }
 }
+
+
+void TestKitFactory::СreateAndRunTest(TestType test_of, int power_of_vertex_set,
+                                      int power_of_edges_set, int step, int min_weight, 
+                                      int max_weight, int type)
+    {
+        switch (test_of) {
+            case TestType::VERTEX: {
+                VertexTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
+                test.GenerateTests();
+                test.RunTests("Vertex Test" + char(char(type) + '0'));
+                break;
+            }
+            case TestType::EDGES: {
+                EdgesTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
+                test.GenerateTests();
+                test.RunTests("Edges Test");
+                break;
+            }
+            case TestType::WEIGHT: {
+                WeightTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
+                test.GenerateTests();
+                test.RunTests("Weight Test"+ char(char(type) + '0'));
+                break;
+            }
+            default:
+                throw std::invalid_argument("Unknown test type");
+        }
+    }

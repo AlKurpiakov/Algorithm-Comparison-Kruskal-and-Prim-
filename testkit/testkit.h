@@ -1,15 +1,16 @@
+#ifndef TESTKIT_H
+#define TESTKIT_H
+#pragma once
 #include "../include/Graph.h"
 #include "../include/Kruskal.h"
 #include "../include/Prim.h"
 #include <chrono>
 #include <random>
-#pragma once
-#ifndef TESTKIT_H
-#define TESTKIT_H
+#include <fstream>
 
 class TestKit 
 {
-protected:
+    public:   
     int _step;
     int _power_of_vertex_set;
     int _power_of_edges_set;
@@ -21,7 +22,6 @@ protected:
     inline Graph GenerateConnectedGraph(int n, int m, int max_weight);
     
     
-public:   
     
     TestKit(int power_of_vertex_set, int power_of_edges_set,
             int step, int min_weight, int max_weight, int type);
@@ -82,38 +82,9 @@ public:
         WEIGHT
     };
 
-    void СreateAndRunTest(
-        TestType test_of,
-        int power_of_vertex_set,
-        int power_of_edges_set,
-        int step,
-        int min_weight,
-        int max_weight,
-        int type
-    ) {
-        switch (test_of) {
-            case TestType::VERTEX: {
-                VertexTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-                test.GenerateTests();
-                test.RunTests("Vertex Test" + char(char(type) + '0'));
-                break;
-            }
-            case TestType::EDGES: {
-                EdgesTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-                test.GenerateTests();
-                test.RunTests("Edges Test");
-                break;
-            }
-            case TestType::WEIGHT: {
-                WeightTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-                test.GenerateTests();
-                test.RunTests("Weight Test"+ char(char(type) + '0'));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Unknown test type");
-        }
-    }
+    void СreateAndRunTest(TestType test_of, int power_of_vertex_set,
+                          int power_of_edges_set, int step, int min_weight,
+                          int max_weight, int type);
 };
 
 

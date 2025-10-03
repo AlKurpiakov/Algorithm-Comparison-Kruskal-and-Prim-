@@ -1,7 +1,27 @@
 #include "../testkit/testkit.h"
 
 int main() {
-    srand(time(NULL));
+    TestKitFactory vertex_test_3_1_ab;
+    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 0);
+    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 1);
+
+    TestKitFactory vertex_test_3_2_ab;
+    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1'000'000, 3);
+    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1'000'000, 4);
+
+
+    TestKitFactory edges_test_3_3;
+    edges_test_3_3.СreateAndRunTest(TestKitFactory::TestType::EDGES, 10'001, 100'000, 100'000, 1, 1'000'000, 0);
+
+    TestKitFactory weight_test_3_4_ab;
+    weight_test_3_4_ab.СreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10'001, 0, 1, 1, 200, 0);
+    weight_test_3_4_ab.СreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10'001, 0, 1, 1, 200, 4);
+
+
+
+    
+    
+/*
     Graph graph;
     std::cin >> graph;
 
@@ -35,6 +55,6 @@ int main() {
     for (int i = 0; i < graph.Size() - 1; i++){
         std::cout << PrimResult.second[i].first << "  " << PrimResult.second[i].second << "\n";
     }
-
+*/
     return 0;
 }
