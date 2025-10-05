@@ -11,13 +11,14 @@ std::pair<weight, std::vector<std::pair<int, int>>> KruskalMst(const Graph& grap
     DSU dsu(n);
 
     std::vector<std::pair<int, int>> mst_edges;
-    for (int i = 0; i < n-1; i++){
-        if (!dsu.IsConnected(sorted_edges[i]._v, sorted_edges[i]._u)){
-            total_weight += sorted_edges[i]._weight;
-            dsu.UnionSet(sorted_edges[i]._v,  sorted_edges[i]._u);
-            mst_edges.emplace_back(sorted_edges[i]._v, sorted_edges[i]._u);
+    for (const Edge& edge : sorted_edges) {
+        if (mst_edges.size() == n - 1) break;
+        
+        if (!dsu.IsConnected(edge._v, edge._u)) {
+            total_weight += edge._weight;
+            dsu.UnionSet(edge._v, edge._u);
+            mst_edges.emplace_back(edge._v, edge._u);
         }
-
     }
 
     if (mst_edges.size() < n - 1) {

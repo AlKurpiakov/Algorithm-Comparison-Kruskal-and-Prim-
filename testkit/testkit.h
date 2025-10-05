@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <string>
 #include <iostream>
+#include <unordered_set>
 
 class TestKit 
 {

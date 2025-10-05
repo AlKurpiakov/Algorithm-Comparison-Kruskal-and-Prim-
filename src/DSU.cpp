@@ -17,18 +17,20 @@ void DSU::UnionSet(int x, int y)
 {
     int rootX = Find(x);
     int rootY = Find(y);
-    if (_rank[x] < _rank[y])
-        _parent[x] = y;
-    else
-    {
-        _parent[y] = x;
-        if (_rank[x] == _rank[y])
-            ++_rank[x];
+
+    if (rootX == rootY) return;
+
+    if (_rank[rootX] < _rank[rootY]) {
+        _parent[rootX] = rootY;
+    } else if (_rank[rootX] > _rank[rootY]) {
+        _parent[rootY] = rootX;
+    } else {
+        _parent[rootY] = rootX;
+        _rank[rootX]++;
     }
+
 }
 
 bool DSU::IsConnected(int x, int y) {
-    int rootX = Find(x);
-    int rootY = Find(y);
-    return rootX == rootY;
+    return Find(y) == Find(x);
 }

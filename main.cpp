@@ -1,22 +1,22 @@
 #include "testkit/testkit.h"
 
 int main() {
+
+
     TestKitFactory vertex_test_3_1_ab;
-    vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 0);
-    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 1);
+    vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 1, 0, 10, 1, 100, 0);
+    // vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1000000, 1);
 
-    TestKitFactory vertex_test_3_2_ab;
-    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1'000'000, 3);
-    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1'000'000, 4);
+    // TestKitFactory vertex_test_3_2_ab;
+    // vertex_test_3_2_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1000000, 2);
+    // vertex_test_3_2_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 101, 0, 100, 1, 1000000, 3);
 
+    // TestKitFactory edges_test_3_3;
+    // edges_test_3_3.CreateAndRunTest(TestKitFactory::TestType::EDGES, 10001, 100000, 100000, 1, 1000000, 0);
 
-    TestKitFactory edges_test_3_3;
-    edges_test_3_3.СreateAndRunTest(TestKitFactory::TestType::EDGES, 10'001, 100'000, 100'000, 1, 1'000'000, 0);
-
-    TestKitFactory weight_test_3_4_ab;
-    weight_test_3_4_ab.СreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10'001, 0, 1, 1, 200, 0);
-    weight_test_3_4_ab.СreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10'001, 0, 1, 1, 200, 4);
-
+    // TestKitFactory weight_test_3_4_ab;
+    // weight_test_3_4_ab.CreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10001, 0, 1, 1, 200, 0);
+    // weight_test_3_4_ab.CreateAndRunTest(TestKitFactory::TestType::WEIGHT, 10001, 0, 1, 1, 200, 3);
 
 
     

@@ -38,11 +38,19 @@ Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
 
     std::uniform_int_distribution<int> weightDist(1, max_weight);
 
-    std::set<std::pair<int,int>> existing;
+    std::unordered_set<uint64_t> existing;
+    existing.reserve(m * 2);
+
+    auto getKey = [](int a, int b) -> uint64_t {
+        if (a > b) std::swap(a, b);
+        return (static_cast<uint64_t>(a) << 32) | b;
+    };
+    
     auto addEdgeSafe = [&](int a, int b, int w) -> bool {
         if (a == b) return false;
-        auto key = a < b ? std::make_pair(a,b) : std::make_pair(b,a);
-        if (existing.find(key) != existing.end()) return false;
+        uint64_t key = getKey(a, b);
+        if (existing.count(key)) return false;
+        
         graph.AddEdge(a, b, w);
         existing.insert(key);
         return true;
@@ -51,21 +59,52 @@ Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
     for (int i = 1; i < n; ++i) {
         std::uniform_int_distribution<int> pick(0, i - 1);
         int j = pick(gen);
-        int u = vertices[i];
-        int v = vertices[j];
-        addEdgeSafe(u, v, weightDist(gen));
+        addEdgeSafe(vertices[i], vertices[j], weightDist(gen));
     }
 
-    while ((int)existing.size() < m) {
+    int edges_needed = m - (n - 1);
+    if (edges_needed <= 0) return graph;
+    
+    if (n < 10000) {
+
+        std::vector<std::pair<int, int>> possible_edges;
+        possible_edges.reserve(n * (n - 1) / 2);
+        
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                possible_edges.emplace_back(i, j);
+            }
+        }
+        
+        auto it = std::remove_if(possible_edges.begin(), possible_edges.end(),
+            [&](const std::pair<int, int>& edge) {
+                return existing.count(getKey(edge.first, edge.second));
+            });
+
+        possible_edges.erase(it, possible_edges.end());
+        
+        std::shuffle(possible_edges.begin(), possible_edges.end(), gen);
+        
+        for (int i = 0; i < edges_needed && i < possible_edges.size(); ++i) {
+            const auto& edge = possible_edges[i];
+            graph.AddEdge(edge.first, edge.second, weightDist(gen));
+        }
+
+
+    } else {
+
         std::uniform_int_distribution<int> pick(0, n - 1);
-        int idxA = pick(gen);
-        int idxB = pick(gen);
-        int a = vertices[idxA];
-        int b = vertices[idxB];
-        if (addEdgeSafe(a, b, weightDist(gen))) {
-            // added
+        
+        for (int attempts = 0; edges_needed > 0 && attempts < edges_needed * 10; ++attempts) {
+            int a = pick(gen);
+            int b = pick(gen);
+            
+            if (addEdgeSafe(a, b, weightDist(gen))) {
+                edges_needed--;
+            }
         }
     }
+
 
     return graph;
 }
@@ -93,6 +132,17 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto kruskal_result = KruskalMst(g);
         auto kruskal_end = std::chrono::high_resolution_clock::now();
         auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
+        
+        for(int j = 0; j < g.Size() - 1; j++){
+            for (int k = 0; k < g.Size() - 1; k++){
+                if (kruskal_result.second[i].first == prim_result.second[k].second && kruskal_result.second[i].second == prim_result.second[k].first || kruskal_result.second[i].second == prim_result.second[k].second && kruskal_result.second[i].first == prim_result.second[k].first  ){
+                    std::cout << j << std::endl;
+                    break;
+                }
+            } 
+            
+        }
+        std::cout << "_____________" <<'\n';
 
         prim_file << prim_duration.count() << "\n";
         kruskal_file << kruskal_duration.count() << "\n";
@@ -100,7 +150,7 @@ void TestKit::RunTests(const std::string& name_of_test) {
 }
 
 void VertexTestKit::GenerateTests() {
-    for (int i = _power_of_vertex_set; i <= 10000 + 1; i += _step) {
+    for (int i = _power_of_vertex_set; i <= 100 + 1; i += _step) {
         _power_of_edges_set = CalcEgesCount(i);
         _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
     }

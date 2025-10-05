@@ -26,7 +26,7 @@ std::pair<weight, std::vector<std::pair<int, int>>> PrimMst(const Graph& graph, 
 
         used[v] = true;
         total_weight += min_edge[v];
-
+        
         for (std::pair<int, long long> edge : graph.GetVertexList(v)){
             to = edge.first;
             w = edge.second;
