@@ -9,7 +9,7 @@
 #include <vector>
 
 using weight = long long;
-const long long INF = LONG_LONG_MAX;
+const long long INF = 100000000;
 
 
 struct Edge{

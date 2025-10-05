@@ -1,8 +1,8 @@
-#include "../testkit/testkit.h"
+#include "testkit/testkit.h"
 
 int main() {
     TestKitFactory vertex_test_3_1_ab;
-    vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 0);
+    vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 0);
     vertex_test_3_1_ab.СreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1'000'000, 1);
 
     TestKitFactory vertex_test_3_2_ab;
