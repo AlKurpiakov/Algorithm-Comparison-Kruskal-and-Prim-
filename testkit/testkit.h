@@ -10,7 +10,7 @@
 
 class TestKit 
 {
-    public:   
+protected:
     int _step;
     int _power_of_vertex_set;
     int _power_of_edges_set;
@@ -22,6 +22,7 @@ class TestKit
     inline Graph GenerateConnectedGraph(int n, int m, int max_weight);
     
     
+public:   
     
     TestKit(int power_of_vertex_set, int power_of_edges_set,
             int step, int min_weight, int max_weight, int type);
