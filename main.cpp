@@ -4,7 +4,7 @@ int main() {
 
 
     TestKitFactory vertex_test_3_1_ab;
-    vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 1, 0, 10, 1, 100, 0);
+    vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 2, 0, 10, 1, 100, 0);
     // vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 0, 0, 100, 1, 1000000, 1);
 
     // TestKitFactory vertex_test_3_2_ab;
