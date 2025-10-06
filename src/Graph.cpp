@@ -1,7 +1,29 @@
 #include "../include/Graph.h"
 
-bool Edge::operator<(Edge other){
+const bool Edge::operator<(Edge other) const {
     return _weight < other._weight;
+}
+
+const bool Edge::operator==(Edge other) const {
+    return _u == other._u && _v == other._v;
+}
+
+
+Edge::Edge(int v, int u, weight w){
+    if (v > u) {
+        _v = u;
+        _u = v;
+    }
+    else {
+        _v = v;
+        _u = u;
+    }
+    _weight = w;
+}
+
+const uint64_t Edge::GetEdgeKey() const{
+    return (static_cast<uint64_t>(static_cast<uint32_t>(_v)) << 32) |
+           static_cast<uint64_t>(static_cast<uint32_t>(_u));
 }
 
 Graph::Graph(int n) : _num_of_vertex(n){
@@ -9,13 +31,29 @@ Graph::Graph(int n) : _num_of_vertex(n){
 }
     
 void Graph::AddEdge(int v, int u, weight w){
-    _edges.push_back({v, u, w});
-    _adjacency_list[v].push_back({u,w});
-    _adjacency_list[u].push_back({v,w});
+    // _edges.push_back({v, u, w});
+    // _adjacency_list[v].push_back({u,w});
+    // _adjacency_list[u].push_back({v,w});
+
+    if (v == u) return; 
+    Edge edge(v, u, w); 
+    uint64_t key = edge.GetEdgeKey();
+    if (!_existing_edges.insert(key).second) return; // уже существует
+    _edges.emplace_back(edge);
+    _adjacency_list[edge._v].emplace_back(edge._u, w);
+    _adjacency_list[edge._u].emplace_back(edge._v, w);
 }
 
 const int Graph::Size() const{
     return _num_of_vertex;
+}
+
+const int Graph::EdgeCount() const{
+    return _edges.size();
+}
+
+const std::unordered_set<uint64_t>& Graph::GetExistingEdgesMap() const{
+    return _existing_edges;
 }
 
 void Graph::Resize(int n) {
