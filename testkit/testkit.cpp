@@ -26,99 +26,82 @@ int TestKit::CalcEgesCount(int num_of_edges) {
     }
 }
 
-Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
-    Graph graph(n);
+uint64_t GetEdgeKey(int u, int v){
+    if (u > v) std::swap(u, v);
+    return (static_cast<uint64_t>(static_cast<uint32_t>(u)) << 32) |
+           static_cast<uint64_t>(static_cast<uint32_t>(v));
+}
 
-    std::vector<int> vertices(n);
-    std::iota(vertices.begin(), vertices.end(), 0);
+
+Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
+
+    long long max_possible_edges = static_cast<long long>(n) * (n - 1) / 2;
+    if (m > max_possible_edges) m = static_cast<int>(max_possible_edges);
+
+    Graph g(n);
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::shuffle(vertices.begin(), vertices.end(), gen);
-
-    std::uniform_int_distribution<int> weightDist(1, max_weight);
-
-    std::unordered_set<uint64_t> existing;
-    existing.reserve(m * 2);
-
-    auto getKey = [](int a, int b) -> uint64_t {
-        if (a > b) std::swap(a, b);
-        return (static_cast<uint64_t>(a) << 32) | b;
-    };
-    
-    auto addEdgeSafe = [&](int a, int b, int w) -> bool {
-        if (a == b) return false;
-        uint64_t key = getKey(a, b);
-        if (existing.count(key)) return false;
-        
-        graph.AddEdge(a, b, w);
-        existing.insert(key);
-        return true;
-    };
+    std::uniform_int_distribution<int> weight_dist(1, max_weight);
 
     for (int i = 1; i < n; ++i) {
         std::uniform_int_distribution<int> pick(0, i - 1);
         int j = pick(gen);
-        addEdgeSafe(vertices[i], vertices[j], weightDist(gen));
+        int w = weight_dist(gen);
+        g.AddEdge(i, j, w);
     }
 
-    int edges_needed = m - (n - 1);
-    if (edges_needed <= 0) return graph;
-    
-    if (n < 10000) {
+    int need = m - g.EdgeCount();
+    if (need <= 0){
+        return g;
+    }
 
-        std::vector<std::pair<int, int>> possible_edges;
-        possible_edges.reserve(n * (n - 1) / 2);
-        
-        for (int i = 0; i < n; ++i) {
-            for (int j = i + 1; j < n; ++j) {
-                possible_edges.emplace_back(i, j);
-            }
-        }
-        
-        auto it = std::remove_if(possible_edges.begin(), possible_edges.end(),
-            [&](const std::pair<int, int>& edge) {
-                return existing.count(getKey(edge.first, edge.second));
-            });
+    // 2) Соберём все возможные отсутствующие пары и выберем случайно нужное число
+    std::vector<std::pair<int,int>> candidates;
+    candidates.reserve(static_cast<size_t>(std::min<long long>(max_possible_edges - g.EdgeCount(), 1000000LL)));
 
-        possible_edges.erase(it, possible_edges.end());
-        
-        std::shuffle(possible_edges.begin(), possible_edges.end(), gen);
-        
-        for (int i = 0; i < edges_needed && i < possible_edges.size(); ++i) {
-            const auto& edge = possible_edges[i];
-            graph.AddEdge(edge.first, edge.second, weightDist(gen));
-        }
-
-
-    } else {
-
-        std::uniform_int_distribution<int> pick(0, n - 1);
-        
-        for (int attempts = 0; edges_needed > 0 && attempts < edges_needed * 10; ++attempts) {
-            int a = pick(gen);
-            int b = pick(gen);
-            
-            if (addEdgeSafe(a, b, weightDist(gen))) {
-                edges_needed--;
+    for (int u = 0; u < n; ++u) {
+        for (int v = u + 1; v < n; ++v) {
+            uint64_t k = GetEdgeKey(u, v);
+            if (g.GetExistingEdgesMap().find(k) == g.GetExistingEdgesMap().end()) {
+                candidates.emplace_back(u, v);
             }
         }
     }
 
+    if (!candidates.empty()) {
+        std::shuffle(candidates.begin(), candidates.end(), gen);
+        int to_add = std::min(need, static_cast<int>(candidates.size()));
+        for (int i = 0; i < to_add; ++i) {
+            int u = candidates[i].first;
+            int v = candidates[i].second;
+            int w = weight_dist(gen);
+            g.AddEdge(u, v, w); 
+        }
+    }
 
-    return graph;
+    return g;
 }
 
+
 void TestKit::RunTests(const std::string& name_of_test) {
-    std::string prim_output_file = "../results"+ name_of_test + "_Prim.txt";
-    std::string kruskal_output_file = "../results"+ name_of_test + "_Kruskal.txt";
 
-    std::ofstream prim_file(prim_output_file);
-    std::ofstream kruskal_file(kruskal_output_file);
-
-    if (!prim_file.is_open() || !kruskal_file.is_open()) {
-        throw std::runtime_error("Could not open output files for writing results");
+    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "results"; 
+    std::error_code ec;
+    if (!std::filesystem::exists(out_dir, ec)) {
+        if (!std::filesystem::create_directories(out_dir, ec)) {
+            throw std::runtime_error("Could not create results directory '" + out_dir.string()
+                                     + "'. error: " + ec.message());
+        }
     }
+
+    std::filesystem::path prim_path = out_dir / (name_of_test + "_Prim.txt");
+    std::filesystem::path kruskal_path = out_dir / (name_of_test + "_Kruskal.txt");
+
+    std::ofstream prim_file(prim_path, std::ios::trunc);
+    std::ofstream kruskal_file(kruskal_path, std::ios::trunc);
+    prim_file << "n m duration_ms\n";
+    kruskal_file << "n m duration_ms\n";
 
     for (size_t i = 0; i < _test_set.size(); ++i) {
         const Graph& g = _test_set[i];
@@ -132,21 +115,16 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto kruskal_result = KruskalMst(g);
         auto kruskal_end = std::chrono::high_resolution_clock::now();
         auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
-        
-        for(int j = 0; j < g.Size() - 1; j++){
-            for (int k = 0; k < g.Size() - 1; k++){
-                if (kruskal_result.second[i].first == prim_result.second[k].second && kruskal_result.second[i].second == prim_result.second[k].first || kruskal_result.second[i].second == prim_result.second[k].second && kruskal_result.second[i].first == prim_result.second[k].first  ){
-                    std::cout << j << std::endl;
-                    break;
-                }
-            } 
-            
-        }
-        std::cout << "_____________" <<'\n';
 
-        prim_file << prim_duration.count() << "\n";
-        kruskal_file << kruskal_duration.count() << "\n";
+        // Пример диагностики соответствия (оставил, но поправил индексы)
+        std::cout << "Test " << i << ": n=" << g.Size() << " edges=" << g.EdgeCount() << '\n';
+
+        prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << "\n";
+        kruskal_file << g.Size() << " " << g.EdgeCount() << " " << kruskal_duration.count() << "\n";
     }
+
+    prim_file.close();
+    kruskal_file.close();
 }
 
 void VertexTestKit::GenerateTests() {
