@@ -56,7 +56,6 @@ Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
         return g;
     }
 
-    // 2) Соберём все возможные отсутствующие пары и выберем случайно нужное число
     std::vector<std::pair<int,int>> candidates;
     candidates.reserve(static_cast<size_t>(std::min<long long>(max_possible_edges - g.EdgeCount(), 1000000LL)));
 
@@ -97,11 +96,18 @@ void TestKit::RunTests(const std::string& name_of_test) {
 
     std::filesystem::path prim_path = out_dir / (name_of_test + "_Prim.txt");
     std::filesystem::path kruskal_path = out_dir / (name_of_test + "_Kruskal.txt");
-
+    
     std::ofstream prim_file(prim_path, std::ios::trunc);
     std::ofstream kruskal_file(kruskal_path, std::ios::trunc);
     prim_file << "n m duration_ms\n";
     kruskal_file << "n m duration_ms\n";
+    
+    if (!prim_file.is_open()) {
+        std::cerr << "Failed to open Prim file: " << prim_path << std::endl;
+    }
+    if (!kruskal_file.is_open()) {
+        std::cerr << "Failed to open Kruskal file: " << kruskal_path << std::endl;
+    }
 
     for (size_t i = 0; i < _test_set.size(); ++i) {
         const Graph& g = _test_set[i];
@@ -116,7 +122,6 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto kruskal_end = std::chrono::high_resolution_clock::now();
         auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
 
-        // Пример диагностики соответствия (оставил, но поправил индексы)
         std::cout << "Test " << i << ": n=" << g.Size() << " edges=" << g.EdgeCount() << '\n';
 
         prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << "\n";
@@ -128,7 +133,7 @@ void TestKit::RunTests(const std::string& name_of_test) {
 }
 
 void VertexTestKit::GenerateTests() {
-    for (int i = _power_of_vertex_set; i <= 100 + 1; i += _step) {
+    for (int i = _power_of_vertex_set; i <= 10'00 + 1; i += _step) {
         _power_of_edges_set = CalcEgesCount(i);
         _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
     }

@@ -27,11 +27,11 @@ add_executable(AlgorithmComparison main.cpp ${SOURCES} ${HEADERS})
 
 target_include_directories(AlgorithmComparison PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-# target_compile_options(AlgorithmComparison PRIVATE
-#     -march=native
-#     -ffast-math
-#     -ftree-vectorize
-#     -fpic
-# )
+target_compile_options(AlgorithmComparison PRIVATE
+    -march=native
+    -ffast-math
+    -ftree-vectorize
+    -fpic
+)
 
 target_compile_features(AlgorithmComparison PRIVATE cxx_std_17)
