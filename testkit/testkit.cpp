@@ -14,8 +14,10 @@ TestKit::TestKit(int power_of_vertex_set, int power_of_edges_set,
 int TestKit::CalcEgesCount(int num_of_edges) {
     switch (_type) {
     case 0:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 1000;
         return num_of_edges * num_of_edges / 10;
     case 1:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 100;
         return num_of_edges * num_of_edges;
     case 2:
         return 100 * num_of_edges;
@@ -115,17 +117,20 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto prim_start = std::chrono::high_resolution_clock::now();
         auto prim_result = PrimMst(g);
         auto prim_end = std::chrono::high_resolution_clock::now();
-        auto prim_duration = std::chrono::duration_cast<std::chrono::milliseconds>(prim_end - prim_start);
+        auto prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(prim_end - prim_start);
 
         auto kruskal_start = std::chrono::high_resolution_clock::now();
         auto kruskal_result = KruskalMst(g);
         auto kruskal_end = std::chrono::high_resolution_clock::now();
-        auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
+        auto kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(kruskal_end - kruskal_start);
 
         std::cout << "Test " << i << ": n=" << g.Size() << " edges=" << g.EdgeCount() << '\n';
 
-        prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << "\n";
-        kruskal_file << g.Size() << " " << g.EdgeCount() << " " << kruskal_duration.count() << "\n";
+        int size = g.Size();
+        int edges = g.EdgeCount();
+
+        prim_file << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+        kruskal_file << size << " " << edges << " " << kruskal_duration.count() << " " << double((edges * log2(edges * size)) / (double)kruskal_duration.count()) << "\n";
     }
 
     prim_file.close();
@@ -133,7 +138,7 @@ void TestKit::RunTests(const std::string& name_of_test) {
 }
 
 void VertexTestKit::GenerateTests() {
-    for (int i = _power_of_vertex_set; i <= 10'00 + 1; i += _step) {
+    for (int i = _power_of_vertex_set; i <= 30'00 + 1; i += _step) {
         _power_of_edges_set = CalcEgesCount(i);
         _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
     }
