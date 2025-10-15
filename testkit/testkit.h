@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 #include <system_error>
 
 class TestKit 
@@ -42,7 +43,7 @@ class TestKit
     virtual void GenerateTests() = 0;
     void RunTests(const std::string& name_of_test);
     int CalcEgesCount(int num_of_edges);
-
+    void OutGraphs(const std::string& name_of_test) const;
     virtual ~TestKit() = default;
 };
 

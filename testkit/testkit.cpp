@@ -78,14 +78,14 @@ Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
             g.AddEdge(u, v, w); 
         }
     }
-
+    
     return g;
 }
 
 
 void TestKit::RunTests(const std::string& name_of_test) {
 
-    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "results"; 
+    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "tests"; 
     std::error_code ec;
     if (!std::filesystem::exists(out_dir, ec)) {
         if (!std::filesystem::create_directories(out_dir, ec)) {
@@ -122,9 +122,8 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto kruskal_end = std::chrono::high_resolution_clock::now();
         auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
 
-        std::cout << "Test " << i << ": n=" << g.Size() << " edges=" << g.EdgeCount() << '\n';
+        prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << ' ' << g.Size() << "\n";
 
-        prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << "\n";
         kruskal_file << g.Size() << " " << g.EdgeCount() << " " << kruskal_duration.count() << "\n";
     }
 
@@ -132,8 +131,29 @@ void TestKit::RunTests(const std::string& name_of_test) {
     kruskal_file.close();
 }
 
+void TestKit::OutGraphs(const std::string& name_of_test) const{
+    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "tests"; 
+    std::error_code ec;
+    if (!std::filesystem::exists(out_dir, ec)) {
+        if (!std::filesystem::create_directories(out_dir, ec)) {
+            throw std::runtime_error("Could not create results directory '" + out_dir.string()
+                                     + "'. error: " + ec.message());
+        }
+    }
+
+    std::filesystem::path test_path = out_dir / (name_of_test + ".txt");
+    
+    std::ofstream test_file(test_path, std::ios::trunc);
+
+    for (Graph it : _test_set){
+        std::cout << it;
+        test_file << it;
+    }
+}
+
+
 void VertexTestKit::GenerateTests() {
-    for (int i = _power_of_vertex_set; i <= 10'00 + 1; i += _step) {
+    for (int i = _power_of_vertex_set; i <= 10'000 + 1; i += _step) {
         _power_of_edges_set = CalcEgesCount(i);
         _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
     }
@@ -160,19 +180,19 @@ void TestKitFactory::CreateAndRunTest(TestType test_of, int power_of_vertex_set,
     case TestType::VERTEX: {
         VertexTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
         test.GenerateTests();
-        test.RunTests(std::string("VertexTest_") + std::to_string(type));
+        test.OutGraphs(std::string("VertexTest_") + std::to_string(type));
         break;
     }
     case TestType::EDGES: {
         EdgesTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
         test.GenerateTests();
-        test.RunTests(std::string("EdgesTest_") + std::to_string(type));
+        test.OutGraphs(std::string("EdgesTest_") + std::to_string(type));
         break;
     }
     case TestType::WEIGHT: {
         WeightTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
         test.GenerateTests();
-        test.RunTests(std::string("WeightTest_") + std::to_string(type));
+        test.OutGraphs(std::string("WeightTest_") + std::to_string(type));
         break;
     }
     default:
