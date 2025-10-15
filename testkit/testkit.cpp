@@ -14,8 +14,10 @@ TestKit::TestKit(int power_of_vertex_set, int power_of_edges_set,
 int TestKit::CalcEgesCount(int num_of_edges) {
     switch (_type) {
     case 0:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 1000;
         return num_of_edges * num_of_edges / 10;
     case 1:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 100;
         return num_of_edges * num_of_edges;
     case 2:
         return 100 * num_of_edges;
@@ -115,16 +117,22 @@ void TestKit::RunTests(const std::string& name_of_test) {
         auto prim_start = std::chrono::high_resolution_clock::now();
         auto prim_result = PrimMst(g);
         auto prim_end = std::chrono::high_resolution_clock::now();
-        auto prim_duration = std::chrono::duration_cast<std::chrono::milliseconds>(prim_end - prim_start);
+        auto prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(prim_end - prim_start);
 
         auto kruskal_start = std::chrono::high_resolution_clock::now();
         auto kruskal_result = KruskalMst(g);
         auto kruskal_end = std::chrono::high_resolution_clock::now();
-        auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
+        auto kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(kruskal_end - kruskal_start);
 
         prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << ' ' << g.Size() << "\n";
 
+<<<<<<< HEAD
         kruskal_file << g.Size() << " " << g.EdgeCount() << " " << kruskal_duration.count() << "\n";
+=======
+        
+>>>>>>> 58292d5d1422aec69c253b8f4e50823161920268
+
+
     }
 
     prim_file.close();
@@ -153,7 +161,11 @@ void TestKit::OutGraphs(const std::string& name_of_test) const{
 
 
 void VertexTestKit::GenerateTests() {
+<<<<<<< HEAD
     for (int i = _power_of_vertex_set; i <= 10'000 + 1; i += _step) {
+=======
+    for (int i = _power_of_vertex_set; i <= 30'00 + 1; i += _step) {
+>>>>>>> 58292d5d1422aec69c253b8f4e50823161920268
         _power_of_edges_set = CalcEgesCount(i);
         _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
     }

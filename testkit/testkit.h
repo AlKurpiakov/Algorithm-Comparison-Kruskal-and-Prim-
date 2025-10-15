@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <numeric>
 #include <set>
+#include <math.h>
 #include <stdexcept>
 #include <filesystem>
 #include <string>
