@@ -94,3 +94,13 @@ std::istream& operator>>(std::istream& in, Graph& graph){
     }
     return in;
 }
+
+std::ostream& operator<<(std::ostream& os, Graph& graph){
+    os << graph.Size() << ' ' << graph.EdgeCount() << "\n";
+    std::vector<Edge> edges = graph.GetEdges();
+    for (Edge e : edges){
+        os << e._v  << ' ' << e._u << ' ' << e._weight << '\n';
+    }
+    os << '\n';
+    return os;
+}

@@ -44,6 +44,8 @@ public:
     const bool IsConnected(int x, int y) const;
     const std::unordered_set<uint64_t>& GetExistingEdgesMap() const;
     friend std::istream& operator>>(std::istream& in, Graph& graph);  
+    friend std::ostream& operator<<(std::ostream& os, Graph& graph);  
+
 };
 
 #endif
