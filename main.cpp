@@ -1,10 +1,9 @@
 #include "testkit/testkit.h"
-
-namespace fs = std::filesystem;
+#include <filesystem>
 
 int main() {
     
-    // std::cout << "Current path: " << fs::current_path() << std::endl;
+    std::cout << "Current path: " << std::filesystem::current_path() << std::endl;
 
     TestKitFactory vertex_test_3_1_ab;
     // vertex_test_3_1_ab.CreateAndRunTest(TestKitFactory::TestType::VERTEX, 2, 0, 100, 1, 100, 0);
