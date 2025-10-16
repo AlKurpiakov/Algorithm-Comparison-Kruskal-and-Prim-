@@ -31,6 +31,8 @@ target_compile_options(AlgorithmComparison PRIVATE
     -march=native
     -ffast-math
     -ftree-vectorize
+    -fpic
+    -O3
 )
 
 target_compile_features(AlgorithmComparison PRIVATE cxx_std_17)

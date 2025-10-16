@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <numeric>
 #include <set>
+#include <math.h>
 #include <stdexcept>
 #include <filesystem>
 #include <string>
@@ -19,6 +20,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 #include <system_error>
 
 class TestKit 
@@ -39,10 +41,8 @@ class TestKit
     TestKit(int power_of_vertex_set, int power_of_edges_set,
             int step, int min_weight, int max_weight, int type);
 
-    virtual void GenerateTests() = 0;
-    void RunTests(const std::string& name_of_test);
+    virtual void GenerateAndRunTests(const std::string& name_of_test) = 0;
     int CalcEgesCount(int num_of_edges);
-
     virtual ~TestKit() = default;
 };
 
@@ -54,7 +54,7 @@ public:
                   int step, int min_weight, int max_weight, int type)
         : TestKit(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type) {}
 
-    void GenerateTests() override;
+    void GenerateAndRunTests(const std::string& name_of_test) override;
 };
 
 
@@ -65,7 +65,7 @@ public:
                  int step, int min_weight, int max_weight, int type)
         : TestKit(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type) {}
 
-    void GenerateTests() override;
+    void GenerateAndRunTests(const std::string& name_of_test) override;
 };
 
 class WeightTestKit : public TestKit 
@@ -75,7 +75,7 @@ public:
                   int step, int min_weight, int max_weight, int type)
         : TestKit(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type) {}
 
-    void GenerateTests() override;
+    void GenerateAndRunTests(const std::string& name_of_test) override;
 };
 
 
@@ -87,7 +87,7 @@ public:
         WEIGHT
     };
 
-    void CreateAndRunTest(TestType test_of, int power_of_vertex_set,
+    void GenerateAndRunTests(TestType test_of, int power_of_vertex_set,
                           int power_of_edges_set, int step, int min_weight,
                           int max_weight, int type);
 };

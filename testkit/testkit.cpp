@@ -14,13 +14,15 @@ TestKit::TestKit(int power_of_vertex_set, int power_of_edges_set,
 int TestKit::CalcEgesCount(int num_of_edges) {
     switch (_type) {
     case 0:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 1000;
         return num_of_edges * num_of_edges / 10;
     case 1:
+        if (num_of_edges > 3000) num_of_edges * num_of_edges / 100;
         return num_of_edges * num_of_edges;
     case 2:
         return 100 * num_of_edges;
     case 3:
-        return 1000 * num_of_edges;
+        return 100* num_of_edges;
     default:
         throw std::invalid_argument("Unknown type in CalcEgesCount");
     }
@@ -78,12 +80,118 @@ Graph TestKit::GenerateConnectedGraph(int n, int m, int max_weight) {
             g.AddEdge(u, v, w); 
         }
     }
-
+    
     return g;
 }
 
+void VertexTestKit::GenerateAndRunTests(const std::string& name_of_test) {
+    
+    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "results"; 
+    std::error_code ec;
+    if (!std::filesystem::exists(out_dir, ec)) {
+        if (!std::filesystem::create_directories(out_dir, ec)) {
+            throw std::runtime_error("Could not create results directory '" + out_dir.string()
+                                     + "'. error: " + ec.message());
+        }
+    }
 
-void TestKit::RunTests(const std::string& name_of_test) {
+    std::filesystem::path prim_path = out_dir / (name_of_test + "_Prim.txt");
+    std::filesystem::path kruskal_path = out_dir / (name_of_test + "_Kruskal.txt");
+    
+    std::ofstream prim_file(prim_path, std::ios::trunc);
+    std::ofstream kruskal_file(kruskal_path, std::ios::trunc);
+    prim_file << "n m duration_ms O(f(n))/T(n)\n";
+    kruskal_file << "n m duration_ms O(f(n))/T(n)\n";
+    
+    if (!prim_file.is_open()) {
+        std::cerr << "Failed to open Prim file: " << prim_path << std::endl;
+    }
+    if (!kruskal_file.is_open()) {
+        std::cerr << "Failed to open Kruskal file: " << kruskal_path << std::endl;
+    }
+
+    for (int i = _power_of_vertex_set; i <= 10'000 + 1; i += _step) {
+        _power_of_edges_set = CalcEgesCount(i);
+        Graph g = GenerateConnectedGraph(i, _power_of_edges_set, _max_weight);
+        
+        auto prim_start = std::chrono::high_resolution_clock::now();
+        auto prim_result = PrimMst(g);
+        auto prim_end = std::chrono::high_resolution_clock::now();
+        auto prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(prim_end - prim_start);
+
+        auto kruskal_start = std::chrono::high_resolution_clock::now();
+        auto kruskal_result = KruskalMst(g);
+        auto kruskal_end = std::chrono::high_resolution_clock::now();
+        auto kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(kruskal_end - kruskal_start);  
+
+
+
+        int size = g.Size();
+        int edges = g.EdgeCount();
+
+        prim_file << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+        kruskal_file << size << " " << edges << " " << kruskal_duration.count() << " " << double((edges * log2(edges * size)) / (double)kruskal_duration.count()) << "\n";
+
+    }
+    
+    prim_file.close();
+    kruskal_file.close();
+
+}
+
+void WeightTestKit::GenerateAndRunTests(const std::string& name_of_test) {
+    std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "results"; 
+    std::error_code ec;
+    if (!std::filesystem::exists(out_dir, ec)) {
+        if (!std::filesystem::create_directories(out_dir, ec)) {
+            throw std::runtime_error("Could not create results directory '" + out_dir.string()
+                                     + "'. error: " + ec.message());
+        }
+    }
+
+    std::filesystem::path prim_path = out_dir / (name_of_test + "_Prim.txt");
+    std::filesystem::path kruskal_path = out_dir / (name_of_test + "_Kruskal.txt");
+    
+    std::ofstream prim_file(prim_path, std::ios::trunc);
+    std::ofstream kruskal_file(kruskal_path, std::ios::trunc);
+    prim_file << "n m duration_ms\n";
+    kruskal_file << "n m duration_ms\n";
+    
+    if (!prim_file.is_open()) {
+        std::cerr << "Failed to open Prim file: " << prim_path << std::endl;
+    }
+    if (!kruskal_file.is_open()) {
+        std::cerr << "Failed to open Kruskal file: " << kruskal_path << std::endl;
+    }
+
+    _power_of_edges_set = CalcEgesCount(10000 + 1);
+    for (int w = _min_weight; w <= _max_weight; w += _step) {
+        Graph g = GenerateConnectedGraph(_power_of_vertex_set, _power_of_edges_set, w);
+        
+        auto prim_start = std::chrono::high_resolution_clock::now();
+        auto prim_result = PrimMst(g);
+        auto prim_end = std::chrono::high_resolution_clock::now();
+        auto prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(prim_end - prim_start);
+
+        auto kruskal_start = std::chrono::high_resolution_clock::now();
+        auto kruskal_result = KruskalMst(g);
+        auto kruskal_end = std::chrono::high_resolution_clock::now();
+        auto kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(kruskal_end - kruskal_start);  
+
+
+        int size = g.Size();
+        int edges = g.EdgeCount();
+        std::cout << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+
+        prim_file << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+        kruskal_file << size << " " << edges << " " << kruskal_duration.count() << " " << double((edges * log2(edges * size)) / (double)kruskal_duration.count()) << "\n";
+    }
+
+    prim_file.close();
+    kruskal_file.close();
+}
+
+void EdgesTestKit::GenerateAndRunTests(const std::string& name_of_test) {
 
     std::filesystem::path out_dir = std::filesystem::current_path() / ".." / "results"; 
     std::error_code ec;
@@ -109,70 +217,51 @@ void TestKit::RunTests(const std::string& name_of_test) {
         std::cerr << "Failed to open Kruskal file: " << kruskal_path << std::endl;
     }
 
-    for (size_t i = 0; i < _test_set.size(); ++i) {
-        const Graph& g = _test_set[i];
-
+    for (int e = _power_of_edges_set; e <= 10000000; e += _step) {
+        Graph g = GenerateConnectedGraph(_power_of_vertex_set, e, _max_weight);
+        
         auto prim_start = std::chrono::high_resolution_clock::now();
         auto prim_result = PrimMst(g);
         auto prim_end = std::chrono::high_resolution_clock::now();
-        auto prim_duration = std::chrono::duration_cast<std::chrono::milliseconds>(prim_end - prim_start);
+        auto prim_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(prim_end - prim_start);
 
         auto kruskal_start = std::chrono::high_resolution_clock::now();
         auto kruskal_result = KruskalMst(g);
         auto kruskal_end = std::chrono::high_resolution_clock::now();
-        auto kruskal_duration = std::chrono::duration_cast<std::chrono::milliseconds>(kruskal_end - kruskal_start);
+        auto kruskal_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(kruskal_end - kruskal_start);  
 
-        std::cout << "Test " << i << ": n=" << g.Size() << " edges=" << g.EdgeCount() << '\n';
 
-        prim_file << g.Size() << " " << g.EdgeCount() << " " << prim_duration.count() << "\n";
-        kruskal_file << g.Size() << " " << g.EdgeCount() << " " << kruskal_duration.count() << "\n";
+        int size = g.Size();
+        int edges = g.EdgeCount();
+        std::cout << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+
+        prim_file << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
+        kruskal_file << size << " " << edges << " " << kruskal_duration.count() << " " << double((edges * log2(edges * size)) / (double)kruskal_duration.count()) << "\n";
+
     }
 
     prim_file.close();
     kruskal_file.close();
 }
 
-void VertexTestKit::GenerateTests() {
-    for (int i = _power_of_vertex_set; i <= 10'00 + 1; i += _step) {
-        _power_of_edges_set = CalcEgesCount(i);
-        _test_set.push_back(this->GenerateConnectedGraph(i, _power_of_edges_set, _max_weight));
-    }
-}
-
-void WeightTestKit::GenerateTests() {
-    _power_of_edges_set = CalcEgesCount(10000 + 1);
-    for (int w = _min_weight; w <= _max_weight; w += _step) {
-        _test_set.push_back(this->GenerateConnectedGraph(_power_of_vertex_set, _power_of_edges_set, w));
-    }
-}
-
-void EdgesTestKit::GenerateTests() {
-    for (int e = _power_of_edges_set; e <= 10000000; e += _step) {
-        _test_set.push_back(this->GenerateConnectedGraph(_power_of_vertex_set, e, _max_weight));
-    }
-}
-
-void TestKitFactory::CreateAndRunTest(TestType test_of, int power_of_vertex_set,
+void TestKitFactory::GenerateAndRunTests(TestType test_of, int power_of_vertex_set,
                                       int power_of_edges_set, int step, int min_weight,
                                       int max_weight, int type)
 {
     switch (test_of) {
     case TestType::VERTEX: {
         VertexTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-        test.GenerateTests();
-        test.RunTests(std::string("VertexTest_") + std::to_string(type));
+        test.GenerateAndRunTests(std::string("VertexTest_") + std::to_string(type));
         break;
     }
     case TestType::EDGES: {
         EdgesTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-        test.GenerateTests();
-        test.RunTests(std::string("EdgesTest_") + std::to_string(type));
+        test.GenerateAndRunTests(std::string("EdgesTest_") + std::to_string(type));
         break;
     }
     case TestType::WEIGHT: {
         WeightTestKit test(power_of_vertex_set, power_of_edges_set, step, min_weight, max_weight, type);
-        test.GenerateTests();
-        test.RunTests(std::string("WeightTest_") + std::to_string(type));
+        test.GenerateAndRunTests(std::string("WeightTest_") + std::to_string(type));
         break;
     }
     default:
