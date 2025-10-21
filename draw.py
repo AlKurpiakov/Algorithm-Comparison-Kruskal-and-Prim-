@@ -1,9 +1,9 @@
 import os
 import matplotlib.pyplot as plt
 
-DATA_DIR = "results"
-FILES = ["WeightTest_0_Kruskal.txt", "WeightTest_0_Prim.txt"]
-OUTPUT_FILE = "combined_plot_weight_test_1.png"
+DATA_DIR = "../results"
+FILES = ["VertexTest_2_Kruskal.txt", "VertexTest_2_Prim.txt"]
+OUTPUT_FILE = "combined_plot_vertex_test_3.png"
 
 plt.figure(figsize=(8, 6))
 
@@ -15,10 +15,8 @@ for filename in FILES:
 
     x_values = []
     y_values = []
-    i = 1
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            i += 1
             parts = line.strip().replace(",", " ").split()
             if len(parts) < 4:
                 continue
@@ -26,7 +24,7 @@ for filename in FILES:
                 a = float(parts[0])
                 b = float(parts[1])
                 c = float(parts[2])
-                x_values.append(i)
+                x_values.append(a + b)
                 y_values.append(c)
             except ValueError:
                 continue
@@ -46,7 +44,7 @@ for filename in FILES:
     )
 
 plt.title("Сравнение данных из двух файлов")
-plt.xlabel("max Weight")
+plt.xlabel("|V| + |E|")
 plt.ylabel("T(n)")
 plt.grid(True)
 plt.legend()

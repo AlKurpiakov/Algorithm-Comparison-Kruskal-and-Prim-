@@ -20,7 +20,7 @@ int TestKit::CalcEgesCount(int num_of_edges) {
         if (num_of_edges > 3000) num_of_edges * num_of_edges / 100;
         return num_of_edges * num_of_edges;
     case 2:
-        return 100 * num_of_edges;
+        return 1000 * num_of_edges;
     case 3:
         return 100* num_of_edges;
     default:
@@ -128,6 +128,7 @@ void VertexTestKit::GenerateAndRunTests(const std::string& name_of_test) {
 
         int size = g.Size();
         int edges = g.EdgeCount();
+        std::cout << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
 
         prim_file << size << " " << edges << " " << prim_duration.count() << " " << double(size*size) / (double)prim_duration.count() << "\n";
         kruskal_file << size << " " << edges << " " << kruskal_duration.count() << " " << double((edges * log2(edges * size)) / (double)kruskal_duration.count()) << "\n";
